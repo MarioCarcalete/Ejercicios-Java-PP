@@ -1,53 +1,48 @@
 package Clase2_Acc_AccAleatorio_Secuencial;
 
-// ---------------------------------------------------------------
-// IMPORTS
-// ---------------------------------------------------------------
-// javax.xml.parsers → las clases que LEEN el XML y lo convierten en un árbol
+// javax.xml.parsers → clases que LEEN el XML y lo convierten en un árbol
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-// javax.xml.transform → las clases que ESCRIBEN el árbol de vuelta al fichero
+// javax.xml.transform → clases que ESCRIBEN el árbol de vuelta al fichero
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-// org.w3c.dom → las piezas del árbol: Document, Element, Node, NodeList...
-// (el * importa todas; lo normal sería importarlas una a una)
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+
+// org.w3c.dom → las piezas del árbol XML: Document, Element, Node, NodeList...
+// El * importa todas las clases del paquete de golpe
+import org.w3c.dom.*;
 
 public class Clase2 {
 
 	/*
 	 * ============================================================
-	 *  RESUMEN DE LO VISTO HASTA AHORA
+	 *  RESUMEN DE LO VISTO
 	 * ============================================================
 	 *
-	 *  ACCESO SECUENCIAL (se lee de principio a fin, en orden)
-	 *  -------------------------------------------------------
-	 *   Ficheros de TEXTO
-	 *     - Leer:     FileReader + BufferedReader
-	 *     - Escribir: FileWriter + BufferedWriter, o PrintWriter
+	 *  SECUENCIAL (se lee/escribe en orden, de principio a fin)
+	 *  --------------------------------------------------------
+	 *   Texto
+	 *     - Lectura:   FileReader + BufferedReader
+	 *     - Escritura: FileWriter + BufferedWriter, o si no PrintWriter
 	 *
-	 *   Ficheros BINARIOS
-	 *     - Leer:     FileInputStream  + DataInputStream   (tipos primitivos)
-	 *                 FileInputStream  + ObjectInputStream (objetos)
-	 *     - Escribir: FileOutputStream + DataOutputStream
-	 *                 FileOutputStream + ObjectOutputStream
+	 *   Binario
+	 *     - Lectura:   FileInputStream + DataInputStream   (tipos primitivos)
+	 *                  FileInputStream + ObjectInputStream (objetos)
+	 *     - Escritura: FileOutputStream + DataOutputStream
+	 *                  FileOutputStream + ObjectOutputStream
 	 *
-	 *     Input / Output siempre desde el punto de vista del PROGRAMA:
-	 *       Input  = los datos ENTRAN al programa (leer del fichero)
-	 *       Output = los datos SALEN del programa (escribir al fichero)
+	 *     Siempre desde la perspectiva del programa:
+	 *       Input  → la información SALE del fichero y ENTRA al programa (leer)
+	 *       Output → la información SALE del programa y va al fichero (escribir)
 	 *
-	 *  ACCESO ALEATORIO (se salta directamente a una posición)
-	 *  -------------------------------------------------------
-	 *     - Leer y escribir: RandomAccessFile (modos "r" y "rw")
+	 *  ALEATORIO (se salta directamente a una posición)
+	 *  --------------------------------------------------------
+	 *     - Lectura y escritura: RandomAccessFile
 	 *
 	 * ============================================================
-	 *  ACCESO A DATOS EN FORMATOS ESTRUCTURADOS
+	 *  ACCESO A DATOS
 	 * ============================================================
 	 *   1. XML   ← esta clase
 	 *   2. CSV
@@ -56,193 +51,267 @@ public class Clase2 {
 	 * ============================================================
 	 *  XML Y DOM
 	 * ============================================================
-	 *  XML es un fichero de texto con ETIQUETAS que forman un árbol:
+	 *  Un XML es texto con ETIQUETAS que forman un árbol:
 	 *
-	 *    <agenda>                         ← elemento RAÍZ (solo hay uno)
-	 *        <contacto>                   ← elemento hijo de agenda
-	 *            <nombre>Mario</nombre>   ← hijo de contacto; "Mario" es su TEXTO
+	 *    <agenda>                           ← RAÍZ (solo hay una)
+	 *        <contacto>                     ← hijo de agenda
+	 *            <nombre>Mario</nombre>     ← hijo de contacto; "Mario" es su texto
 	 *            <telefono>600111222</telefono>
 	 *        </contacto>
-	 *        <contacto> ... </contacto>
 	 *    </agenda>
 	 *
-	 *  DOM (Document Object Model) = cargar el XML ENTERO en memoria como un
-	 *  árbol de objetos. Así podemos recorrerlo, buscar, modificar y borrar
-	 *  nodos, y después volver a guardarlo en el fichero.
-	 *   + Muy cómodo, puedes ir adelante y atrás en el árbol.
-	 *   - Si el XML es enorme, ocupa mucha memoria (para eso existe SAX,
-	 *     que lee el XML por eventos sin cargarlo entero).
+	 *  DOM = cargar el XML ENTERO en memoria como un árbol de objetos para
+	 *  recorrerlo, buscar, modificar o borrar, y luego volver a guardarlo.
 	 *
-	 *  Piezas principales:
-	 *   - Document → el documento completo (el árbol entero)
-	 *   - Node     → cualquier cosa del árbol: una etiqueta, un texto, un comentario...
-	 *   - Element  → un tipo de Node: una ETIQUETA (<contacto>, <nombre>...)
-	 *   - NodeList → una lista de nodos (con getLength() e item(i))
+	 *   - Document → el documento completo
+	 *   - Node     → cualquier cosa del árbol (etiqueta, texto, comentario...)
+	 *   - Element  → un Node que es una ETIQUETA (<contacto>, <nombre>...)
+	 *   - NodeList → lista de nodos: se recorre con getLength() e item(i)
 	 */
 
 	public static void main(String[] args) throws Exception {
-		// El fichero agenda.xml tiene que estar en la RAÍZ del proyecto
-		// (al lado de la carpeta src), igual que con los ficheros de texto.
+		// throws Exception en el main: si algo falla, el programa se para y
+		// muestra el error. agenda.xml debe estar en la RAÍZ del proyecto.
 		leerAgenda("agenda.xml");
-		buscar("Mario", "agenda.xml");
-		buscar("Pepe", "agenda.xml");   // no existe → "No se ha encontrado"
-		eliminar("José María", "agenda.xml");
-		leerAgenda("agenda.xml");       // comprobamos que ya no está
-		// OJO: eliminar() MODIFICA el fichero de verdad. Si lo ejecutas dos veces,
-		// la segunda dirá que no encuentra a José María. Guarda una copia del XML.
+		Buscar("Mario", "agenda.xml");
+		Buscar("Pepe", "agenda.xml");          // no existe → mensaje de no encontrado
+		eliminar("José María", "agenda.xml");  // OJO: modifica el fichero de verdad
+		nuevoContacto("Sofia","756478654","agenda.xml");
 	}
 
 	// ---------------------------------------------------------------
-	// MÉTODO AUXILIAR: cargar el XML en memoria
+	// CARGAR EL XML (forma corta, en un método aparte)
 	// ---------------------------------------------------------------
-	// Los tres métodos empezaban con las mismas 3 líneas repetidas.
-	// Cuando algo se repite, se saca a un método → menos código y menos errores.
+	// Hace exactamente lo mismo que las 3 primeras líneas de cada método de abajo.
+	// En cada método dejo tu forma original y, comentada, la alternativa que usa
+	// este método. Las dos funcionan igual: elige la que prefieras.
 	public static Document cargarXML(String fichero) throws Exception {
-		// 1. La FACTORÍA: un objeto cuya función es fabricar "constructores" de documentos.
-		//    No se usa new, sino newInstance() (patrón Factory).
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		// 2. El CONSTRUCTOR (builder): el que sabe leer un XML.
-		DocumentBuilder builder = factory.newDocumentBuilder();
-		// 3. parse() lee el fichero y devuelve el árbol completo en un Document.
-		//    Si el XML está mal formado (una etiqueta sin cerrar...) lanza SAXException.
-		Document doc = builder.parse(fichero);
-		// normalize() junta nodos de texto partidos. No siempre hace falta,
-		// pero es buena costumbre llamarlo nada más cargar.
-		doc.getDocumentElement().normalize();
-		return doc;
+		DocumentBuilderFactory BF = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder = BF.newDocumentBuilder();
+		return builder.parse(fichero);
 	}
 
 	// ---------------------------------------------------------------
-	// LEER: mostrar todos los contactos
+	// LEER TODA LA AGENDA
 	// ---------------------------------------------------------------
 	public static void leerAgenda(String fichero) throws Exception {
-		System.out.println("===== AGENDA =====");
-		Document doc = cargarXML(fichero);
+		// 1. La FACTORÍA: fabrica "constructores" de documentos.
+		//    No se crea con new, sino con newInstance().
+		DocumentBuilderFactory BF = DocumentBuilderFactory.newInstance();
+		// 2. El BUILDER: el objeto que sabe leer un XML.
+		DocumentBuilder builder = BF.newDocumentBuilder();
+		// 3. parse() lee el fichero y devuelve el árbol entero en un Document.
+		Document doc = builder.parse(fichero);
+		// Alternativa con el método de arriba (sustituye a las 3 líneas):
+		// Document doc = cargarXML(fichero);
 
-		// getElementsByTagName("contacto") busca en TODO el documento las etiquetas
-		// <contacto> y las devuelve en un NodeList (lista que podemos recorrer).
+		// creamos una lista iterable con todas las etiquetas <contacto>
+		// del documento (el texto entre comillas es el nombre de la etiqueta)
 		NodeList listaContactos = doc.getElementsByTagName("contacto");
 
-		// NodeList no es un ArrayList: no vale el for-each.
-		// Se recorre con getLength() (tamaño) e item(i) (elemento i).
+		// NodeList no admite for-each: se recorre con getLength() e item(i)
 		for (int i = 0; i < listaContactos.getLength(); i++) {
+			// item(i) devuelve un Node genérico...
 			Node nodo = listaContactos.item(i);
-			// item() devuelve un Node genérico. Lo convertimos (cast) a Element
-			// porque Element tiene más métodos, como getElementsByTagName.
-			// Aquí el cast es seguro: getElementsByTagName solo devuelve etiquetas.
+			// ...y lo convertimos (cast) a Element para poder buscar dentro de él
 			Element contacto = (Element) nodo;
 
-			// Dentro de ESTE contacto buscamos su <nombre>:
-			//   getElementsByTagName("nombre") → lista con los <nombre> de este contacto
-			//   .item(0)                       → el primero (solo hay uno)
-			//   .getTextContent()              → el texto que hay entre las etiquetas
+			// Dentro de ESTE contacto:
+			//   getElementsByTagName("nombre") → sus etiquetas <nombre>
+			//   item(0)                        → la primera (solo hay una)
+			//   getTextContent()               → el texto de dentro: "Mario"
 			String nombre = contacto.getElementsByTagName("nombre").item(0).getTextContent();
 			String telefono = contacto.getElementsByTagName("telefono").item(0).getTextContent();
 
-			// printf: los valores van DETRÁS, separados por comas.
-			// %s = String, %n = salto de línea
-			System.out.printf("Nombre: %s%nTeléfono: %s%n%n", nombre, telefono);
+			// Funciona tal cual lo tenías. En printf lo habitual es poner %s y
+			// pasar los valores detrás: printf("Nombre : %s%nTelefono : %s%n", nombre, telefono);
+			System.out.printf("Nombre : " + nombre + "%nTelefono : " + telefono + "%n");
 		}
 	}
 
+	/*
+	 * Hasta aquí hemos creado un método para leer y para buscar un contacto.
+	 * Vamos también a ver cómo se borra en XML.
+	 */
+
 	// ---------------------------------------------------------------
-	// BUSCAR: mostrar el teléfono de un contacto por su nombre
+	// BUSCAR UN CONTACTO POR NOMBRE
 	// ---------------------------------------------------------------
-	// Nombre del método en minúscula: en Java los métodos van en camelCase
-	// (buscar, leerAgenda). Mayúscula inicial solo para las clases.
-	public static void buscar(String nombreBuscado, String fichero) throws Exception {
-		Document doc = cargarXML(fichero);
+	// Funciona con B mayúscula, pero por convenio en Java los métodos empiezan
+	// en minúscula (buscar). La mayúscula inicial se reserva para las clases.
+	public static void Buscar(String nombreB, String fichero) throws Exception {
+		DocumentBuilderFactory BF = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder = BF.newDocumentBuilder();
+		Document doc = builder.parse(fichero);
+		// Alternativa: Document doc = cargarXML(fichero);
+
 		NodeList listaContactos = doc.getElementsByTagName("contacto");
-		boolean encontrado = false; // "bandera" para saber si lo hemos encontrado
+		String nombre;
+		String telefono;
+		boolean encontrado = false; // bandera: pasa a true si lo encontramos
 
 		for (int i = 0; i < listaContactos.getLength(); i++) {
-			Element contacto = (Element) listaContactos.item(i);
-			String nombre = contacto.getElementsByTagName("nombre").item(0).getTextContent();
+			Node nodo = listaContactos.item(i);
+			Element contacto = (Element) nodo;
 
-			// equalsIgnoreCase: compara sin distinguir mayúsculas ("mario" = "Mario")
-			if (nombreBuscado.equalsIgnoreCase(nombre)) {
-				String telefono = contacto.getElementsByTagName("telefono").item(0).getTextContent();
-				System.out.println("Teléfono de " + nombre + ": " + telefono);
+			nombre = contacto.getElementsByTagName("nombre").item(0).getTextContent();
+			telefono = contacto.getElementsByTagName("telefono").item(0).getTextContent();
+
+			// equalsIgnoreCase: compara sin importar mayúsculas ("mario" = "Mario")
+			if (nombreB.equalsIgnoreCase(nombre)) {
+				System.out.println("Telefono : " + telefono);
 				encontrado = true;
-				// No ponemos break por si hubiera varios contactos con el mismo nombre
 			}
 		}
 
-		// Solo después de recorrer TODA la lista sabemos si no estaba
-		if (!encontrado)
-			System.out.println("No se ha encontrado al contacto " + nombreBuscado);
+		// Solo al terminar el bucle sabemos seguro que no estaba
+		if (!encontrado) {
+			System.out.println("No se ha encontrado al contacto ");
+		}
 	}
 
 	// ---------------------------------------------------------------
-	// ELIMINAR: borrar un contacto y guardar el XML
+	// ELIMINAR UN CONTACTO
 	// ---------------------------------------------------------------
-	/*
-	 * Borrar en XML tiene DOS PASOS:
-	 *   1. Quitar el nodo del árbol que tenemos en MEMORIA (removeChild)
-	 *   2. GUARDAR el árbol de nuevo en el fichero (Transformer)
-	 * Si solo haces el paso 1, el fichero no cambia: solo has modificado la copia
-	 * que hay en memoria.
-	 */
-	public static void eliminar(String nombreBuscado, String fichero) throws Exception {
-		Document doc = cargarXML(fichero);
+	// Borrar tiene DOS pasos:
+	//   1. Quitar el nodo del árbol en MEMORIA (removeChild)
+	//   2. GUARDAR el árbol en el fichero (Transformer)
+	// Sin el paso 2 el fichero no cambia.
+	public static void eliminar(String nombreB, String fichero) throws Exception {
+		DocumentBuilderFactory BF = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder = BF.newDocumentBuilder();
+		Document doc = builder.parse(fichero);
+		// Alternativa: Document doc = cargarXML(fichero);
+
 		NodeList listaContactos = doc.getElementsByTagName("contacto");
+		String nombre;
+		String telefono;
 		boolean encontrado = false;
 
-		// IMPORTANTE: recorremos la lista HACIA ATRÁS.
-		// El NodeList es "vivo": si borras un nodo, la lista se actualiza sola
-		// y los siguientes se desplazan una posición. Recorriendo hacia delante,
-		// al borrar el i, el que era i+1 pasa a ser i y el bucle se lo SALTA.
-		// Hacia atrás, borrar no afecta a los que quedan por revisar.
-		for (int i = listaContactos.getLength() - 1; i >= 0; i--) {
-			Element contacto = (Element) listaContactos.item(i);
-			String nombre = contacto.getElementsByTagName("nombre").item(0).getTextContent();
+		for (int i = 0; i < listaContactos.getLength(); i++) {
+			Node nodo = listaContactos.item(i);
+			Element contacto = (Element) nodo;
 
-			if (nombreBuscado.equalsIgnoreCase(nombre)) {
-				// Un nodo NO se borra a sí mismo: se lo pide a su PADRE.
-				// getParentNode() → el padre (aquí, <agenda>)
-				// removeChild(hijo) → lo quita del árbol
-				// (Con doc.getDocumentElement().removeChild(contacto) también funciona,
-				// pero SOLO si contacto es hijo directo de la raíz. getParentNode()
-				// funciona siempre, esté donde esté.)
-				contacto.getParentNode().removeChild(contacto);
-				System.out.println("El contacto " + nombre + " ha sido eliminado");
+			nombre = contacto.getElementsByTagName("nombre").item(0).getTextContent();
+			telefono = contacto.getElementsByTagName("telefono").item(0).getTextContent();
+
+			if (nombreB.equalsIgnoreCase(nombre)) {
+				System.out.println("Telefono : " + telefono);
 				encontrado = true;
+
+				// getDocumentElement() devuelve la RAÍZ (<agenda>).
+				// Un nodo no se borra a sí mismo: se lo pide a su padre.
+				// Funciona porque <contacto> es hijo directo de <agenda>.
+				Element raiz = doc.getDocumentElement();
+				raiz.removeChild(contacto);
+				System.out.println("El contacto  : " + nombre + " ha sido eliminado ");
+
+				// AJUSTE: la lista es "viva". Al borrar, los contactos siguientes
+				// bajan una posición, y el i++ del bucle se saltaría al siguiente.
+				// Restando 1 volvemos a revisar esa misma posición.
+				i--;
+
+				// AJUSTE: el guardado ya NO va aquí dentro. Así, si se borran
+				// varios, el fichero se guarda una sola vez al final.
 			}
 		}
 
-		if (encontrado)
-			guardarXML(doc, fichero); // solo guardamos si ha cambiado algo, y UNA sola vez
-		else
-			System.out.println("No se ha encontrado al contacto " + nombreBuscado);
+		// AJUSTE: guardamos SOLO si hemos borrado algo (si no, no hay cambios)
+		if (encontrado) {
+			// Igual que al leer: primero la factoría, luego el objeto que trabaja
+			TransformerFactory transformerFactor = TransformerFactory.newInstance();
+			// AJUSTE (error de compilación): antes ponía TransformerFactory.newTransformer(),
+			// llamando a la CLASE. newTransformer() hay que llamarlo sobre el OBJETO
+			// transformerFactor que acabamos de crear.
+			Transformer transformer = transformerFactor.newTransformer();
+
+			// Que el XML se guarde con saltos de línea y sangría.
+			// AJUSTE: el valor es "yes" en minúsculas, no "YES".
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			// Nº de espacios de sangría
+			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+			// DOMSource    → de DÓNDE sale la información (el árbol en memoria)
+			// StreamResult → a DÓNDE va (el fichero)
+			DOMSource source = new DOMSource(doc);
+			StreamResult result = new StreamResult(fichero);
+			// transform() convierte el árbol en texto XML y lo escribe en el fichero
+			transformer.transform(source, result);
+		} else {
+			System.out.println("No se ha encontrado al contacto ");
+		}
 	}
-
+	
 	// ---------------------------------------------------------------
-	// MÉTODO AUXILIAR: guardar el árbol DOM en el fichero
-	// ---------------------------------------------------------------
-	// Lo usarás también para AÑADIR o MODIFICAR contactos, así que mejor aparte.
-	public static void guardarXML(Document doc, String fichero) throws Exception {
-		// Mismo patrón que al leer: factoría → objeto que hace el trabajo.
-		TransformerFactory transformerFactory = TransformerFactory.newInstance();
-		// CORREGIDO: en el original ponía TransformerFactory.newTransformer()
-		// (con la C mayúscula, llamando a la CLASE). newTransformer() no es
-		// estático: hay que llamarlo sobre el OBJETO que acabamos de crear.
-		Transformer transformer = transformerFactory.newTransformer();
+		// AÑADIR UN CONTACTO NUEVO
+		// ---------------------------------------------------------------
+		// Pasos:
+		//   1. Comprobar que no existe ya un contacto con ese nombre
+		//   2. Crear las etiquetas nuevas en MEMORIA:
+		//        <contacto>
+		//            <nombre>nuevoNombre</nombre>
+		//            <telefono>telefonoN</telefono>
+		//        </contacto>
+		//   3. Colgarlas de la raíz <agenda>
+		//   4. GUARDAR el árbol en el fichero
+		//
+		// AJUSTE: hace falta "throws Exception" porque cargarXML() y transform()
+		// pueden lanzar excepciones. Sin esto, Eclipse te lo marca en rojo.
+		public static void nuevoContacto(String nuevoNombre, String telefonoN, String fichero) throws Exception {
+			Document doc = cargarXML(fichero);
+			NodeList listaContactos = doc.getElementsByTagName("contacto");
+			boolean encontrado = false;
 
-		// Opciones para que el XML quede bonito (con saltos de línea y sangría).
-		// CORREGIDO: el valor es "yes" en minúsculas, no "YES".
-		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-		// Número de espacios de sangría (propiedad específica del motor de Java)
-		transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-		// Codificación: UTF-8 para que tildes y ñ se guarden bien
-		transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+			// 1. BUSCAR SI YA EXISTE
+			// La condición "&& encontrado == false" hace que el bucle pare en cuanto
+			// lo encuentre: no tiene sentido seguir buscando.
+			// (También se puede escribir más corto: && !encontrado)
+			for (int i = 0; i < listaContactos.getLength() && encontrado == false; i++) {
+				Node nodo = listaContactos.item(i);
+				Element contacto = (Element) nodo;
+				String nombre = contacto.getElementsByTagName("nombre").item(0).getTextContent();
 
-		// DOMSource    → DE DÓNDE sale la información (nuestro árbol en memoria)
-		// StreamResult → A DÓNDE va (el fichero)
-		DOMSource source = new DOMSource(doc);
-		StreamResult result = new StreamResult(new java.io.File(fichero));
+				if (nuevoNombre.equalsIgnoreCase(nombre)) {
+					encontrado = true;
+				}
+			}
 
-		// transform() convierte el árbol en texto XML y lo escribe en el fichero
-		transformer.transform(source, result);
-		System.out.println("Fichero " + fichero + " guardado");
-	}
+			if (encontrado) {
+				System.out.println("El contacto " + nuevoNombre + " ya existe, no se añade");
+			} else {
+				// 2. CREAR LOS NODOS NUEVOS
+				// Los nodos siempre se crean a través del Document (doc.createElement),
+				// nunca con new. Al crearlos todavía están "sueltos", fuera del árbol.
+				Element Nuevocontacto = doc.createElement("contacto");
+
+				Element Elementonombre = doc.createElement("nombre");
+				// setTextContent pone el texto entre las etiquetas: <nombre>Ana</nombre>
+				Elementonombre.setTextContent(nuevoNombre);
+
+				Element Elementotelefono = doc.createElement("telefono");
+				Elementotelefono.setTextContent(telefonoN);
+
+				// appendChild(hijo) mete un nodo DENTRO de otro, al final.
+				// Metemos <nombre> y <telefono> dentro de <contacto>
+				Nuevocontacto.appendChild(Elementonombre);
+				Nuevocontacto.appendChild(Elementotelefono);
+
+				// 3. COLGARLO DEL ÁRBOL
+				// Lo añadimos al final de la raíz <agenda>. Hasta este momento el
+				// contacto existía pero no formaba parte del documento.
+				Element raiz = doc.getDocumentElement();
+				raiz.appendChild(Nuevocontacto);
+
+				// 4. GUARDAR EN EL FICHERO (igual que en eliminar)
+				TransformerFactory transformerFactor = TransformerFactory.newInstance();
+				Transformer transformer = transformerFactor.newTransformer();
+				transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+				transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+				DOMSource source = new DOMSource(doc);
+				StreamResult result = new StreamResult(fichero);
+				transformer.transform(source, result);
+
+				System.out.println("Contacto " + nuevoNombre + " añadido");
+			}
+		}
 }
