@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<agenda>
+        
+    <contacto>
+                
+        <nombre>Mario</nombre>
+                
+        <telefono>600111222</telefono>
+            
+    </contacto>
+        
+    <contacto>
+                
+        <nombre>Isabel</nombre>
+                
+        <telefono>611222333</telefono>
+            
+    </contacto>
+        
+    
+    <contacto>
+                
+        <nombre>Luis</nombre>
+                
+        <telefono>633444555</telefono>
+            
+    </contacto>
+    
+</agenda>
