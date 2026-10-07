@@ -1,4 +1,3 @@
-// Ejercicio 3
 package Ejercicio3Paises;
 
 // Clases que necesitamos importar
