@@ -1,12 +1,14 @@
 package Clase1_json;
 
+import java.util.List;
+
 public class Contacto {
 	private String nombre;
-	private String telefono;
+	private List<String> telefono;
 	private String dni;
 
 	// Ojo al orden: nombre, DNI, teléfono (igual que en el main)
-	public Contacto(String n, String d, String t) {
+	public Contacto(String n, String d, List<String> t) {   // ← List, no String
 		this.nombre = n;
 		this.dni = d;
 		this.telefono = t;
@@ -16,7 +18,7 @@ public class Contacto {
 		return nombre;
 	}
 
-	public String getTelefono() {
+	public List<String> getTelefono() {                      // ← devuelve List
 		return telefono;
 	}
 
@@ -24,12 +26,19 @@ public class Contacto {
 		return dni;
 	}
 
+	public void setTelefono(List<String> telefono) {         // ← void
+		this.telefono = telefono;
+	}
+
 	@Override
 	public String toString() {
-		return "Nombre : " + nombre + "\nDNI: " + dni + "\nTelefono : " + telefono;
-	}
-	
-	public String setTelefono() {
-		return telefono;
+		
+		String entrada = "Nombre : " + this.nombre + "\nDNI : " + this.dni + "\nTelefonos : ";
+		for(String tlf : telefono) {
+			entrada+="\n" + tlf;
+			entrada +="\n";
+		}
+			return entrada;
+		 
 	}
 }
