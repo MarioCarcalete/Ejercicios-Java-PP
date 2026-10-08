@@ -4,6 +4,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
@@ -14,18 +15,26 @@ public class JSON {
 	public static void main(String[] args) {
 		final String ruta = "agendaJ.json"; // debe estar en la RAÍZ del proyecto
 		leerAgenda(ruta);
-		Contacto nuevo = new Contacto("José María", "1213234435T", "989348945");
-		Contacto nuevo2=new Contacto("Marta","435485845N","83482383");
+
+		// El constructor pide una List<String>, así que creamos la lista con los 2 teléfonos.
+		// new ArrayList<>(...) para que la lista se pueda modificar después
+		Contacto nuevo  = new Contacto("José María", "1213234435T",
+				new ArrayList<>(List.of("989348945", "600123123")));
+		Contacto nuevo2 = new Contacto("Marta", "435485845N",
+				new ArrayList<>(List.of("83482383", "611222333")));
+
 		crearContacto(nuevo, ruta);
-		crearContacto(nuevo2,ruta);// la 2ª ejecución dirá que ya existe
-		leerAgenda(ruta);                  // comprobamos cómo ha quedado
+		crearContacto(nuevo2, ruta); // la 2ª ejecución dirá que ya existe
+		leerAgenda(ruta);
+
+		// Cambiar el 2º teléfono de Marta (0 = primero, 1 = segundo)
+		modificarTelefono("Marta", 1, "699999999", ruta);
+		leerAgenda(ruta);
 	}
 
 	// ---------------------------------------------------------------
 	// CARGAR: lee el fichero JSON y devuelve la lista de contactos
 	// ---------------------------------------------------------------
-	// Gson convierte el JSON en un objeto Agenda, y de ahí sacamos la lista.
-	// Si algo falla (no existe el fichero, JSON mal escrito...) devuelve null.
 	public static List<Contacto> cargarListaContactos(String ruta) {
 		List<Contacto> contactos = null;
 		try (Reader lector = new FileReader(ruta)) {
@@ -41,12 +50,10 @@ public class JSON {
 	// ---------------------------------------------------------------
 	// GUARDAR: escribe la lista de contactos en el fichero JSON
 	// ---------------------------------------------------------------
-	// Metemos la lista en un objeto Agenda y Gson lo convierte a JSON.
 	public static void guardarAgenda(List<Contacto> contactos, String ruta) {
 		Agenda agenda = new Agenda();
 		agenda.setContactos(contactos);
 		try (Writer escritor = new FileWriter(ruta)) {
-			// setPrettyPrinting → JSON con saltos de línea y sangría (más legible)
 			Gson gson = new GsonBuilder().setPrettyPrinting().create();
 			gson.toJson(agenda, escritor);
 		} catch (Exception e) {
@@ -62,7 +69,7 @@ public class JSON {
 		List<Contacto> contactos = cargarListaContactos(ruta);
 		if (contactos != null) {
 			for (Contacto c : contactos) {
-				System.out.println(c); // usa el toString() de Contacto
+				System.out.println(c);
 			}
 		}
 		System.out.println();
@@ -71,20 +78,13 @@ public class JSON {
 	// ---------------------------------------------------------------
 	// AÑADIR UN CONTACTO NUEVO
 	// ---------------------------------------------------------------
-	// Pasos:
-	//   1. Cargar la lista
-	//   2. Comprobar que no existe ya un contacto con ese nombre
-	//   3. Si no existe: añadirlo a la lista (memoria) y GUARDAR (disco)
 	public static void crearContacto(Contacto nuevo, String ruta) {
-		// 1. CARGAR
 		List<Contacto> contactos = cargarListaContactos(ruta);
 		if (contactos == null) {
 			System.out.println("No se ha podido cargar la agenda");
 			return;
 		}
 
-		// 2. BUSCAR SI YA EXISTE (el bucle para en cuanto lo encuentra)
-		// trim() quita espacios del principio y del final: "José María " = "José María"
 		boolean encontrado = false;
 		for (int i = 0; i < contactos.size() && !encontrado; i++) {
 			String nombre = contactos.get(i).getNombre().trim();
@@ -93,37 +93,46 @@ public class JSON {
 			}
 		}
 
-		// 3. DECIDIR DESPUÉS DEL BUCLE, cuando ya hemos mirado todos
 		if (encontrado) {
 			System.out.println("Ya existe un contacto con el nombre " + nuevo.getNombre());
 		} else {
-			contactos.add(nuevo);           // solo en memoria...
-			guardarAgenda(contactos, ruta); // ...y ahora al fichero
+			contactos.add(nuevo);
+			guardarAgenda(contactos, ruta);
 			System.out.println("Contacto " + nuevo.getNombre() + " añadido");
 		}
 	}
-	
-	
-	public static void modificarTelefono(String nombre,String telefono,String ruta) {
-		List<Contacto> contactos =cargarListaContactos(ruta);
-		if(contactos==null) {
-			System.out.println("NO se puede cargar");
-		}
-		boolean encontrado = false;
-		
-		for(int i =0;i<contactos.size();i++) {
-			 if (contactos.get(i).getNombre().trim().equalsIgnoreCase(nombre.trim())) {
-		            contactos.get(i).setTelefono();
-		            encontrado = true;
-		        }
-		    }
 
-		    if (encontrado) {
-		        guardarAgenda(contactos, ruta);
-		        System.out.println("Teléfono de " + nombre + " actualizado a " + telefono);
-		    } else {
-		        System.out.println("No se encontró ningún contacto con el nombre " + nombre);
-		    }
+	// ---------------------------------------------------------------
+	// MODIFICAR UN TELÉFONO (posicion: 0 = primero, 1 = segundo)
+	// ---------------------------------------------------------------
+	public static void modificarTelefono(String nombre, int posicion, String telefono, String ruta) {
+		List<Contacto> contactos = cargarListaContactos(ruta);
+		if (contactos == null) {
+			System.out.println("No se ha podido cargar la agenda");
+			return; // sin esto, el for daría NullPointerException
 		}
+
+		boolean encontrado = false;
+		for (int i = 0; i < contactos.size() && !encontrado; i++) {
+			Contacto c = contactos.get(i);
+			if (c.getNombre().trim().equalsIgnoreCase(nombre.trim())) {
+				encontrado = true;
+
+				// Cogemos su lista de teléfonos, cambiamos el de esa posición y se la volvemos a poner
+				List<String> telefonos = new ArrayList<>(c.getTelefono());
+				if (posicion >= 0 && posicion < telefonos.size()) {
+					telefonos.set(posicion, telefono);
+					c.setTelefono(telefonos);
+					guardarAgenda(contactos, ruta);
+					System.out.println("Teléfono " + (posicion + 1) + " de " + nombre + " actualizado a " + telefono);
+				} else {
+					System.out.println(nombre + " no tiene teléfono en la posición " + posicion);
+				}
+			}
+		}
+
+		if (!encontrado) {
+			System.out.println("No se encontró ningún contacto con el nombre " + nombre);
+		}
+	}
 }
-		
