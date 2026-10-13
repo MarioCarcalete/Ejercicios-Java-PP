@@ -28,6 +28,7 @@ public class Ejercicio6 {
 			String linea;
 			while((linea=lc.readLine())!=null) {
 				Map<String,Integer> contadorRepeticiones = new TreeMap<>();
+				
 
 				System.out.println(linea.trim());
 			}
