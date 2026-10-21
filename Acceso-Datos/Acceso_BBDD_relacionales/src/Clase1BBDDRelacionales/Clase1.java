@@ -6,16 +6,19 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import Conexiones_y_Demás_Pull.PoolConexiones;
+
 public class Clase1 {
 	public static void main(String[] args) {
-		String url = "jdbc:mysql://localhost:3306/dam2";
-		String usuario ="profe";
-		String pwd="abc123";
+		
 		
 		try{
-			Connection conn = DriverManager.getConnection(url,usuario,pwd);
+			Connection conn = PoolConexiones.getConnection();
 			System.out.println("Conexion realizada");
+			conn.setAutoCommit(false);
 			Statement sql = conn.createStatement();
+			
+			sql.executeUpdate("Delete from alumnos where email= 'lucia.fernandez@email.com' ");
 			
 
 			ResultSet resultado2 = sql.executeQuery("Select * from alumnos");
@@ -27,6 +30,7 @@ public class Clase1 {
 
 				
 			}
+			conn.commit();
 			conn.close();
 		}catch(SQLException e) {
 			e.printStackTrace();
@@ -34,3 +38,9 @@ public class Clase1 {
 	}
 
 }
+
+/*
+ * Al poner el Autocomit false no se hace el commit y no se guarda solo modifica lo que se ve en la terminal pero si hacemos el commit se guarda de verdad 
+ * 
+ * 
+ * */
