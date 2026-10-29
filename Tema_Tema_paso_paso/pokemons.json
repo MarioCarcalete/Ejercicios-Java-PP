@@ -1,0 +1,18 @@
+{
+  "pokedex": [
+    {
+      "nombre": "Pikachu",
+      "tipos": [
+        "Eléctrico"
+      ],
+      "nivel": 99
+    },
+    {
+      "nombre": "Charmander",
+      "tipos": [
+        "Fuego"
+      ],
+      "nivel": 12
+    }
+  ]
+}
