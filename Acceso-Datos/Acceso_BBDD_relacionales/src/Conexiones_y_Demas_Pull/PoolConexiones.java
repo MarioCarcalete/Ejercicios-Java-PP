@@ -1,4 +1,4 @@
-package Conexiones_y_Demás_Pull;
+package Conexiones_y_Demas_Pull;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -11,7 +11,7 @@ public class PoolConexiones {
 	
 	static/*Inicializació estatica antes de que empieze el programa, las cosas que queremos que sepa antes que empieze*/ {
 		dataSource = new BasicDataSource();
-		String url = "jdbc:mysql://localhost:3306/dam2";
+		String url = "jdbc:mysql://localhost:3307/dam2";
 		String usuario ="profe";
 		String pwd="abc123";
 		dataSource.setUrl(url);

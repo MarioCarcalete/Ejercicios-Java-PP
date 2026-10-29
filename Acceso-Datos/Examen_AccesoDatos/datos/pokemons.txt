@@ -1,0 +1,4 @@
+Pikachu;Eléctrico;25
+Charmander;Fuego;12
+Bulbasaur;Planta,Veneno;15
+Gyarados;Agua,Volador;40

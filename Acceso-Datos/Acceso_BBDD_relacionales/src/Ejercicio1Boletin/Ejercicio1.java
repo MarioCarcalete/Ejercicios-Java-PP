@@ -15,7 +15,7 @@ public class Ejercicio1 {
 
     public static void BuscarNombre(String apellido) {
 
-        String url = "jdbc:mysql://localhost:3306/classicmodels";
+        String url = "jdbc:mysql://localhost:3307/classicmodels";
         String usuario = "profe";
         String pwd = "abc123";
 

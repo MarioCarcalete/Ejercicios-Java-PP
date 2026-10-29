@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import Conexiones_y_Demás_Pull.PoolConexiones;
+import Conexiones_y_Demas_Pull.PoolConexiones;
 
 public class Clase1 {
 	public static void main(String[] args) {

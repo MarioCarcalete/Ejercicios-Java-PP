@@ -11,7 +11,7 @@ public class PoolConexiones_classic {
 	
 	static/*Inicializació estatica antes de que empieze el programa, las cosas que queremos que sepa antes que empieze*/ {
 		dataSource = new BasicDataSource();
-		String url = "jdbc:mysql://localhost:3306/classicmodels";
+		String url = "jdbc:mysql://localhost:3307/classicmodels";
 		String usuario ="profe";
 		String pwd="abc123";
 		dataSource.setUrl(url);
