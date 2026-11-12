@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pokedex>
+    <pokemon numero="25">
+        <nombre>Pikachu</nombre>
+        <tipo>Eléctrico</tipo>
+        <nivel>25</nivel>
+    </pokemon>
+    <pokemon numero="6">
+        <nombre>Charizard</nombre>
+        <tipo>Fuego</tipo>
+        <nivel>50</nivel>
+    </pokemon>
+</pokedex>

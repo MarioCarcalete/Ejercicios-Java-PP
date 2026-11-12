@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<pokedex>
+    <pokemon numero="1">
+        <nombre>Pikachu</nombre>
+        <tipo>Eléctrico</tipo>
+        <nivel>100</nivel>
+    </pokemon>
+    <pokemon numero="3">
+        <nombre>Mewtwo</nombre>
+        <tipo>Psíquico</tipo>
+        <nivel>75</nivel>
+    </pokemon>
+</pokedex>

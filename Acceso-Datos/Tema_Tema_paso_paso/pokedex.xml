@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<pokedex>
+    <pokemon numero="1">
+        <nombre>Raichu</nombre>
+        <tipo>Eléctrico</tipo>
+        <nivel>100</nivel>
+    </pokemon>
+    <pokemon numero="2">
+        <nombre>Charizard</nombre>
+        <tipo>Volador</tipo>
+        <nivel>50</nivel>
+    </pokemon>
+</pokedex>

@@ -1,12 +1,11 @@
 package Ejercicio3_Boletín;
 
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-
+import Conexiones_y_Demás_Pull.PoolConexiones;
 import Conexiones_y_Demás_Pull.PoolConexiones_classic;
 
 public class Ejercicio3 {
@@ -35,7 +34,7 @@ public class Ejercicio3 {
 				}
 				
 				if(!dentro) {
-					System.out.println("NO hay ningun producto con stock menor que  " + numeroP);
+					System.out.println("es más que " + numeroP);
 				}
 			}
 			

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence" version="3.1">
+
+    <persistence-unit name="clasePU">
+        <!-- Todas las entidades del paquete model -->
+        <class>model.Continents</class>
+        <class>model.Countries</class>
+        <class>model.CountryLanguages</class>
+        <class>model.CountryLanguagesId</class>
+        <class>model.CountryStats</class>
+        <class>model.CountryStatsId</class>
+        <class>model.Languages</class>
+        <class>model.RegionAreas</class>
+        <class>model.Regions</class>
+
+        <properties>
+            <property name="jakarta.persistence.jdbc.driver" value="org.mariadb.jdbc.Driver"/>
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:mariadb://localhost:3306/naciones"/>
+            <property name="jakarta.persistence.jdbc.user" value="profe"/>
+            <property name="jakarta.persistence.jdbc.password" value="abc123"/>
+
+            <!-- Crea/actualiza las tablas a partir de las entidades -->
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            <!-- Muestra el SQL que genera Hibernate (pon true si quieres verlo) -->
+            <property name="hibernate.show_sql" value="false"/>
+            <property name="hibernate.format_sql" value="true"/>
+        </properties>
+    </persistence-unit>
+</persistence>
